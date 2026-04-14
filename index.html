@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#3b82f6">
+    <link rel="manifest" href="manifest.json">
+    <title>NutriTrack - Beslenme Takibi</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        }
+        
+         :root {
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --text-secondary: #475569;
+            --border: #e2e8f0;
+            --primary: #3b82f6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --orange: #f97316;
+            --purple: #a855f7;
+        }
+        
+        body.dark {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --primary: #60a5fa;
+        }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        button {
+            background: var(--primary);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        button.secondary {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        
+        button.small {
+            padding: 0.3rem 0.7rem;
+            font-size: 0.8rem;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 0.2rem;
+            margin-bottom: 1.2rem;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+        }
+        
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 0.5rem 0.9rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .card {
+            background: var(--surface);
+            border-radius: 1.2rem;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+        }
+        
+        .card-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: space-between;
+        }
+        
+        input,
+        select {
+            width: 100%;
+            padding: 0.7rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            margin-bottom: 0.7rem;
+            font-size: 0.9rem;
+        }
+        
+        .stat-grid {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-top: 0.8rem;
+        }
+        
+        .stat-item {
+            background: var(--bg);
+            border-radius: 1rem;
+            padding: 0.6rem;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .deficit {
+            color: var(--danger);
+        }
+        
+        .surplus {
+            color: var(--warning);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .small-text {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+        
+        .meal-card {
+            background: var(--bg);
+            border-radius: 1rem;
+            padding: 0.8rem;
+            margin-bottom: 0.8rem;
+            border: 1px solid var(--border);
+        }
+        
+        .meal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .meal-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        
+        .meal-inputs input {
+            flex: 1;
+            margin-bottom: 0;
+            padding: 0.5rem;
+        }
+        
+        .daily-total {
+            background: var(--primary);
+            color: white;
+            border-radius: 1rem;
+            padding: 0.8rem;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+        
+        .daily-item {
+            background: var(--bg);
+            border-radius: 0.8rem;
+            padding: 0.7rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            border: 1px solid var(--border);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 1rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: white;
+        }
+        
+        .mood-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .mood-btn {
+            font-size: 1.2rem;
+            padding: 0.5rem 0.8rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            border-radius: 2rem;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--surface);
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            max-width: 300px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 0.8rem;
+            }
+            .mood-btn {
+                font-size: 1rem;
+                padding: 0.3rem 0.6rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍽️ NutriTrack</h1>
+            <button id="themeToggle">🌙 Karanlık Mod</button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="profile">👤 Profil</button>
+            <button class="tab-btn" data-tab="daily">📅 Günlük</button>
+            <button class="tab-btn" data-tab="goals">🎯 Hedefler</button>
+            <button class="tab-btn" data-tab="reports">📊 Raporlar</button>
+            <button class="tab-btn" data-tab="mood">😊 Ruh Hali</button>
+            <button class="tab-btn" data-tab="history">📜 Geçmiş</button>
+            <button class="tab-btn" data-tab="stats">📈 Grafikler</button>
+            <button class="tab-btn" data-tab="ai">🤖 Yapay Zeka</button>
+        </div>
+
+        <div id="profileTab" class="tab-content">
+            <div class="card">
+                <div class="card-title">👤 Vücut Bilgileri</div>
+                <div class="flex-between" style="gap: 0.8rem;">
+                    <input type="number" id="weight" placeholder="Kilo (kg)">
+                    <input type="number" id="height" placeholder="Boy (cm)">
+                </div>
+                <div class="flex-between" style="gap: 0.8rem;">
+                    <input type="number" id="age" placeholder="Yaş">
+                    <select id="gender"><option value="male">Erkek</option><option value="female">Kadın</option></select>
+                </div>
+                <button id="saveProfileBtn">💾 Kaydet</button>
+            </div>
+            <div class="card">
+                <div class="card-title">⚡ Metabolizma</div>
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <div class="small-text">BMR</div>
+                        <div id="bmrVal" class="stat-value">--</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="small-text">Günlük İhtiyaç</div>
+                        <div id="needVal" class="stat-value">--</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="small-text">Protein Hedefi</div>
+                        <div id="proteinTarget" class="stat-value">--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dailyTab" class="tab-content hidden">
+            <div class="card">
+                <div class="flex-between">
+                    <div class="card-title">📅 <span id="currentDate"></span></div>
+                    <div>
+                        <button id="prevDayBtn" class="secondary small">◀</button>
+                        <button id="nextDayBtn" class="secondary small">▶</button>
+                    </div>
+                </div>
+
+                <select id="activitySelect">
+                <option value="1.2">🛋️ Hareketsiz</option>
+                <option value="1.375" selected>🚶 Hafif Aktif</option>
+                <option value="1.55">🏃 Orta Aktif</option>
+                <option value="1.725">💪 Çok Aktif</option>
+                <option value="1.9">⚡ Ekstra Aktif</option>
+            </select>
+                <input type="number" id="exerciseCal" placeholder="🏋️ Ekstra Egzersiz (kcal)">
+
+                <div style="margin-top: 1rem;">
+                    <div class="card-title">🍽️ Öğünler</div>
+                    <div class="meal-card">
+                        <div class="meal-header">
+                            <div class="meal-name"><span class="badge" style="background:var(--orange);">☀️ SABAH</span></div><button class="small secondary clear-meal" data-meal="morning">Temizle</button></div>
+                        <div class="meal-inputs"><input type="number" id="morningCal" placeholder="Kalori" value="0"><input type="number" id="morningProtein" placeholder="Protein (g)" value="0"><input type="number" id="morningCarbs" placeholder="Karb (g)" value="0"><input type="number"
+                                id="morningFat" placeholder="Yağ (g)" value="0"></div>
+                        <div class="small-text" id="morningTotal">🔥 0 kcal | 🥩 0 g</div>
+                    </div>
+                    <div class="meal-card">
+                        <div class="meal-header">
+                            <div class="meal-name"><span class="badge" style="background:var(--success);">🌞 ÖĞLE</span></div><button class="small secondary clear-meal" data-meal="noon">Temizle</button></div>
+                        <div class="meal-inputs"><input type="number" id="noonCal" placeholder="Kalori" value="0"><input type="number" id="noonProtein" placeholder="Protein (g)" value="0"><input type="number" id="noonCarbs" placeholder="Karb (g)" value="0"><input type="number"
+                                id="noonFat" placeholder="Yağ (g)" value="0"></div>
+                        <div class="small-text" id="noonTotal">🔥 0 kcal | 🥩 0 g</div>
+                    </div>
+                    <div class="meal-card">
+                        <div class="meal-header">
+                            <div class="meal-name"><span class="badge" style="background:var(--primary);">🌙 AKŞAM</span></div><button class="small secondary clear-meal" data-meal="evening">Temizle</button></div>
+                        <div class="meal-inputs"><input type="number" id="eveningCal" placeholder="Kalori" value="0"><input type="number" id="eveningProtein" placeholder="Protein (g)" value="0"><input type="number" id="eveningCarbs" placeholder="Karb (g)" value="0"><input type="number"
+                                id="eveningFat" placeholder="Yağ (g)" value="0"></div>
+                        <div class="small-text" id="eveningTotal">🔥 0 kcal | 🥩 0 g</div>
+                    </div>
+                    <div class="meal-card">
+                        <div class="meal-header">
+                            <div class="meal-name"><span class="badge" style="background:var(--purple);">🍎 ARA ÖĞÜN</span></div><button class="small secondary clear-meal" data-meal="snack">Temizle</button></div>
+                        <div class="meal-inputs"><input type="number" id="snackCal" placeholder="Kalori" value="0"><input type="number" id="snackProtein" placeholder="Protein (g)" value="0"><input type="number" id="snackCarbs" placeholder="Karb (g)" value="0"><input type="number"
+                                id="snackFat" placeholder="Yağ (g)" value="0"></div>
+                        <div class="small-text" id="snackTotal">🔥 0 kcal | 🥩 0 g</div>
+                    </div>
+                </div>
+
+                <div class="daily-total">
+                    <div>📊 GÜNLÜK TOPLAM</div>
+                    <div><span id="totalCalories">0</span> kcal | 🥩 <span id="totalProtein">0</span>g | 🍞 <span id="totalCarbs">0</span>g | 🥑 <span id="totalFat">0</span>g</div>
+                </div>
+
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <div class="small-text">İhtiyaç</div>
+                        <div id="dailyNeedDisplay" class="stat-value">--</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="small-text">Denge</div>
+                        <div id="deficitDisplay" class="stat-value">--</div>
+                    </div>
+                </div>
+
+                <button id="saveDailyBtn" style="width:100%; margin-top:0.5rem;">💾 Kaydet</button>
+            </div>
+
+            <div class="card">
+                <div class="card-title">📅 Hızlı Geçiş</div>
+                <div id="quickDates" style="display: flex; gap: 0.3rem; flex-wrap: wrap;"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">💡 Anlık Öneri</div>
+                <div id="suggestionText">5 gün kayıt yapınca öneriler gelir.</div>
+            </div>
+        </div>
+
+        <div id="goalsTab" class="tab-content hidden">
+            <div class="card">
+                <div class="card-title">🎯 Kilo Hedefi</div>
+                <input type="number" id="targetWeight" placeholder="Hedef Kilo (kg)">
+                <input type="date" id="targetDate" placeholder="Hedef Tarih">
+                <button id="saveGoalBtn">💾 Hedefi Kaydet</button>
+                <div id="goalInfo" class="stat-grid" style="margin-top:1rem;"></div>
+                <div class="progress-bar">
+                    <div id="weightProgressFill" class="progress-fill" style="width:0%"></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">📊 Hedefe Kalan</div>
+                <div id="remainingInfo" class="stat-grid"></div>
+            </div>
+        </div>
+
+        <div id="reportsTab" class="tab-content hidden">
+            <div class="card">
+                <div class="card-title">📆 Haftalık Rapor</div>
+                <div id="weeklyReport"></div>
+                <button id="exportBtn" class="secondary small" style="margin-top:0.5rem;">📥 Excel'e Aktar</button>
+            </div>
+            <div class="card">
+                <div class="card-title">📆 Aylık Rapor</div>
+                <div id="monthlyReport"></div>
+            </div>
+        </div>
+
+        <div id="moodTab" class="tab-content hidden">
+            <div class="card">
+                <div class="card-title">😊 Bugün Nasıl Hissediyorsun?</div>
+                <div class="mood-buttons">
+                    <button class="mood-btn" data-mood="😢" data-mood-type="sad">😢 Kötü</button>
+                    <button class="mood-btn" data-mood="😐" data-mood-type="neutral">😐 Normal</button>
+                    <button class="mood-btn" data-mood="🙂" data-mood-type="good">🙂 İyi</button>
+                    <button class="mood-btn" data-mood="😊" data-mood-type="happy">😊 Çok İyi</button>
+                    <button class="mood-btn" data-mood="🤩" data-mood-type="excellent">🤩 Müthiş</button>
+                </div>
+                <div id="motivationCard" style="margin-top:1rem; padding:1rem; background:var(--bg); border-radius:1rem; display:none;"></div>
+                <div id="moodHistory" style="margin-top:1rem;"></div>
+            </div>
+        </div>
+
+        <div id="historyTab" class="tab-content hidden">
+            <div class="card">
+                <div id="historyList" class="daily-list"></div>
+            </div>
+        </div>
+
+        <div id="statsTab" class="tab-content hidden">
+            <div class="card"><canvas id="calChart" height="150"></canvas></div>
+            <div class="card"><canvas id="proteinChart" height="150"></canvas></div>
+            <div class="card"><canvas id="carbsChart" height="150"></canvas></div>
+            <div class="card"><canvas id="fatChart" height="150"></canvas></div>
+            <div class="card"><canvas id="trendChart" height="150"></canvas></div>
+        </div>
+
+        <div id="aiTab" class="tab-content hidden">
+            <!-- API Ayarları bölümü kişisel kullanım için koda gömüldüğünden gizlendi -->
+            <div class="card" style="display: none;">
+                <div class="card-title">🔑 Gemini API Ayarları</div>
+                <div class="small-text" style="margin-bottom: 0.5rem;">Gemini API Key bilginizi girin.</div>
+                <input type="password" id="geminiApiKeyInput" placeholder="Gemini API Key">
+                <button id="saveGeminiApiBtn" class="small">Kaydet</button>
+            </div>
+
+            <div class="card">
+                <div class="card-title">🤖 Gemini Kalori Hesapla</div>
+                <div class="small-text" style="margin-bottom: 0.5rem;">Kameradan anında fotoğraf çekin, görsel yükleyin veya yemeği metin olarak yazın.</div>
+                <input type="file" id="aiImageInput" accept="image/*" capture="environment" style="padding: 0.3rem;">
+                <img id="aiImagePreview" style="max-width: 100%; border-radius: 1rem; margin-bottom: 0.5rem; display: none;">
+
+                <textarea id="aiPromptInput" placeholder="Örn: 100g tavuk göğsü, 1 tabak pilav... (Gemini Türkçe'yi mükemmel anlar)" style="width: 100%; padding: 0.7rem; border-radius: 1rem; border: 1px solid var(--border); background: var(--bg); color: var(--text); margin-bottom: 0.7rem; font-size: 0.9rem; resize: vertical; min-height: 80px;"></textarea>
+
+                <button id="askAIBtn" style="width: 100%;">Analiz Et</button>
+
+                <div id="aiResult" style="margin-top: 1rem; padding: 1rem; background: var(--surface); border-radius: 1rem; border: 1px solid var(--border); line-height: 1.5; display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== VERİ YÖNETİMİ ====================
+        var userProfile = {
+            weight: null,
+            height: null,
+            age: null,
+            gender: "male",
+            targetWeight: null,
+            targetDate: null
+        };
+        var dailyEntries = {};
+        var moodEntries = {};
+        var currentDate = new Date().toISOString().slice(0, 10);
+
+        function getToday() {
+            var d = new Date();
+            return d.toISOString().slice(0, 10);
+        }
+
+        function saveAllData() {
+            localStorage.setItem("nutritrack_profile", JSON.stringify(userProfile));
+            localStorage.setItem("nutritrack_entries", JSON.stringify(dailyEntries));
+            localStorage.setItem("nutritrack_mood", JSON.stringify(moodEntries));
+
+            // Debug için
+            console.log("Veriler kaydedildi:", {
+                profile: userProfile,
+                entries: dailyEntries
+            });
+        }
+
+        function loadAllData() {
+            var savedProfile = localStorage.getItem("nutritrack_profile");
+            if (savedProfile) {
+                userProfile = JSON.parse(savedProfile);
+            }
+
+            var savedEntries = localStorage.getItem("nutritrack_entries");
+            if (savedEntries) {
+                dailyEntries = JSON.parse(savedEntries);
+            }
+
+            var savedMood = localStorage.getItem("nutritrack_mood");
+            if (savedMood) {
+                moodEntries = JSON.parse(savedMood);
+            }
+
+            // Bugün ve gelecek günleri kontrol et
+            var today = getToday();
+            for (var i = 0; i <= 14; i++) {
+                var d = new Date();
+                d.setDate(d.getDate() + i);
+                var iso = d.toISOString().slice(0, 10);
+                if (!dailyEntries[iso]) {
+                    dailyEntries[iso] = {
+                        morning: {
+                            cal: 0,
+                            protein: 0
+                        },
+                        noon: {
+                            cal: 0,
+                            protein: 0
+                        },
+                        evening: {
+                            cal: 0,
+                            protein: 0
+                        },
+                        snack: {
+                            cal: 0,
+                            protein: 0
+                        },
+                        activity: 1.375,
+                        exercise: 0
+                    };
+                }
+            }
+
+            saveAllData();
+        }
+
+        function getEmptyMeals() {
+            return {
+                morning: {
+                    cal: 0,
+                    protein: 0
+                },
+                noon: {
+                    cal: 0,
+                    protein: 0
+                },
+                evening: {
+                    cal: 0,
+                    protein: 0
+                },
+                snack: {
+                    cal: 0,
+                    protein: 0
+                },
+                activity: 1.375,
+                exercise: 0
+            };
+        }
+
+        function calculateBMR() {
+            var w = userProfile.weight;
+            var h = userProfile.height;
+            var a = userProfile.age;
+            var g = userProfile.gender;
+            if (!w || !h || !a) return null;
+            var bmr = 10 * w + 6.25 * h - 5 * a;
+            if (g === "male") {
+                return Math.round(bmr + 5);
+            } else {
+                return Math.round(bmr - 161);
+            }
+        }
+
+        function getDailyNeeds(date) {
+            var bmr = calculateBMR();
+            if (!bmr) return 2000;
+            var entry = dailyEntries[date];
+            if (!entry) return Math.round(bmr * 1.375);
+            var activity = entry.activity || 1.375;
+            var exercise = entry.exercise || 0;
+            return Math.round(bmr * activity) + exercise;
+        }
+
+        function getDailyTotal(entry) {
+            if (!entry) return {
+                calories: 0,
+                protein: 0
+            };
+            var totalCal = 0;
+            var totalProt = 0;
+            if (entry.morning) {
+                totalCal = totalCal + (Number(entry.morning.cal) || 0);
+                totalProt = totalProt + (Number(entry.morning.protein) || 0);
+            }
+            if (entry.noon) {
+                totalCal = totalCal + (Number(entry.noon.cal) || 0);
+                totalProt = totalProt + (Number(entry.noon.protein) || 0);
+            }
+            if (entry.evening) {
+                totalCal = totalCal + (Number(entry.evening.cal) || 0);
+                totalProt = totalProt + (Number(entry.evening.protein) || 0);
+            }
+            if (entry.snack) {
+                totalCal = totalCal + (Number(entry.snack.cal) || 0);
+                totalProt = totalProt + (Number(entry.snack.protein) || 0);
+            }
+            return {
+                calories: totalCal,
+                protein: totalProt
+            };
+        }
+
+        function showNotification(message) {
+            var notif = document.createElement("div");
+            notif.className = "notification";
+            notif.innerHTML = message;
+            document.body.appendChild(notif);
+            setTimeout(function() {
+                notif.remove();
+            }, 3000);
+        }
+
+        function updateUI() {
+            var entry = dailyEntries[currentDate];
+            if (!entry) {
+                entry = getEmptyMeals();
+                dailyEntries[currentDate] = entry;
+            }
+
+            document.getElementById("morningCal").value = entry.morning ? entry.morning.cal : 0;
+            document.getElementById("morningProtein").value = entry.morning ? entry.morning.protein : 0;
+            document.getElementById("morningCarbs").value = entry.morning ? (entry.morning.carbs || 0) : 0;
+            document.getElementById("morningFat").value = entry.morning ? (entry.morning.fat || 0) : 0;
+
+            document.getElementById("noonCal").value = entry.noon ? entry.noon.cal : 0;
+            document.getElementById("noonProtein").value = entry.noon ? entry.noon.protein : 0;
+            document.getElementById("noonCarbs").value = entry.noon ? (entry.noon.carbs || 0) : 0;
+            document.getElementById("noonFat").value = entry.noon ? (entry.noon.fat || 0) : 0;
+
+            document.getElementById("eveningCal").value = entry.evening ? entry.evening.cal : 0;
+            document.getElementById("eveningProtein").value = entry.evening ? entry.evening.protein : 0;
+            document.getElementById("eveningCarbs").value = entry.evening ? (entry.evening.carbs || 0) : 0;
+            document.getElementById("eveningFat").value = entry.evening ? (entry.evening.fat || 0) : 0;
+
+            document.getElementById("snackCal").value = entry.snack ? entry.snack.cal : 0;
+            document.getElementById("snackProtein").value = entry.snack ? entry.snack.protein : 0;
+            document.getElementById("snackCarbs").value = entry.snack ? (entry.snack.carbs || 0) : 0;
+            document.getElementById("snackFat").value = entry.snack ? (entry.snack.fat || 0) : 0;
+
+            document.getElementById("activitySelect").value = entry.activity || 1.375;
+            document.getElementById("exerciseCal").value = entry.exercise || 0;
+            document.getElementById("currentDate").innerHTML = currentDate.replace(/-/g, "/");
+            document.getElementById("waterCount").innerText = entry.water || 0;
+            document.getElementById("waterMl").innerText = (entry.water || 0) * 200;
+
+            var morningCal = entry.morning ? entry.morning.cal : 0;
+            var morningProt = entry.morning ? entry.morning.protein : 0;
+            var morningC = entry.morning ? (entry.morning.carbs || 0) : 0;
+            var morningF = entry.morning ? (entry.morning.fat || 0) : 0;
+            var noonCal = entry.noon ? entry.noon.cal : 0;
+            var noonProt = entry.noon ? entry.noon.protein : 0;
+            var noonC = entry.noon ? (entry.noon.carbs || 0) : 0;
+            var noonF = entry.noon ? (entry.noon.fat || 0) : 0;
+            var eveningCal = entry.evening ? entry.evening.cal : 0;
+            var eveningProt = entry.evening ? entry.evening.protein : 0;
+            var eveningC = entry.evening ? (entry.evening.carbs || 0) : 0;
+            var eveningF = entry.evening ? (entry.evening.fat || 0) : 0;
+            var snackCal = entry.snack ? entry.snack.cal : 0;
+            var snackProt = entry.snack ? entry.snack.protein : 0;
+            var snackC = entry.snack ? (entry.snack.carbs || 0) : 0;
+            var snackF = entry.snack ? (entry.snack.fat || 0) : 0;
+
+            document.getElementById("morningTotal").innerHTML = "🔥 " + morningCal + " kcal | 🥩 " + morningProt + "g | 🍞 " + morningC + "g | 🥑 " + morningF + "g";
+            document.getElementById("noonTotal").innerHTML = "🔥 " + noonCal + " kcal | 🥩 " + noonProt + "g | 🍞 " + noonC + "g | 🥑 " + noonF + "g";
+            document.getElementById("eveningTotal").innerHTML = "🔥 " + eveningCal + " kcal | 🥩 " + eveningProt + "g | 🍞 " + eveningC + "g | 🥑 " + eveningF + "g";
+            document.getElementById("snackTotal").innerHTML = "🔥 " + snackCal + " kcal | 🥩 " + snackProt + "g | 🍞 " + snackC + "g | 🥑 " + snackF + "g";
+
+            var total = getDailyTotal(entry);
+            document.getElementById("totalCalories").innerText = total.calories;
+            document.getElementById("totalProtein").innerText = total.protein.toFixed(1);
+            document.getElementById("totalCarbs").innerText = total.carbs.toFixed(1);
+            document.getElementById("totalFat").innerText = total.fat.toFixed(1);
+
+            var need = getDailyNeeds(currentDate);
+            var deficit = total.calories - need;
+            document.getElementById("dailyNeedDisplay").innerHTML = "Hedef: " + need + " kcal";
+            var ds = document.getElementById("deficitDisplay");
+            if (deficit > 0) {
+                ds.innerHTML = "+" + deficit + " kcal (Fazla)";
+                ds.className = "stat-value surplus";
+            } else {
+                ds.innerHTML = deficit + " kcal (Açık)";
+                ds.className = "stat-value deficit";
+            }
+
+            var targetP = userProfile.targetProtein || Math.round((userProfile.weight || 70) * 1.8);
+            var targetC = userProfile.targetCarbs || Math.round((need * 0.5) / 4);
+            var targetF = userProfile.targetFat || Math.round((need * 0.3) / 9);
+
+            document.getElementById("dailyProteinProgress").innerHTML = Math.round(total.protein) + " / " + targetP + "g";
+            document.getElementById("dailyCarbsProgress").innerHTML = Math.round(total.carbs) + " / " + targetC + "g";
+            document.getElementById("dailyFatProgress").innerHTML = Math.round(total.fat) + " / " + targetF + "g";
+
+            renderHistory();
+            renderQuickDates();
+            refreshCharts();
+            renderReports();
+            renderGoalInfo();
+            renderMoodHistory();
+        }
+
+        function renderQuickDates() {
+            var container = document.getElementById("quickDates");
+            container.innerHTML = "";
+            var today = new Date();
+            for (var i = -2; i <= 5; i++) {
+                var d = new Date();
+                d.setDate(today.getDate() + i);
+                var iso = d.toISOString().slice(0, 10);
+                var btn = document.createElement("button");
+                btn.className = "secondary small";
+                btn.innerText = iso === getToday() ? "Bugün" : iso.slice(5);
+                if (iso === currentDate) btn.style.background = "var(--primary)";
+                btn.onclick = (function(date) {
+                    return function() {
+                        currentDate = date;
+                        updateUI();
+                    };
+                })(iso);
+                container.appendChild(btn);
+            }
+        }
+
+        function renderHistory() {
+            var container = document.getElementById("historyList");
+            var dates = Object.keys(dailyEntries).sort().reverse();
+            container.innerHTML = "";
+            for (var i = 0; i < dates.length; i++) {
+                var date = dates[i];
+                var total = getDailyTotal(dailyEntries[date]);
+                var need = getDailyNeeds(date);
+                var deficit = total.calories - need;
+                var div = document.createElement("div");
+                div.className = "daily-item";
+                var deficitText = deficit > 0 ? "+" + deficit : deficit;
+                div.innerHTML = "<b>" + date + "</b> 🔥 " + total.calories + "/" + need + " kcal | 🥩 " + total.protein.toFixed(1) + "g | " + deficitText + " kcal";
+                div.onclick = (function(date) {
+                    return function() {
+                        currentDate = date;
+                        updateUI();
+                        switchTab("daily");
+                    };
+                })(date);
+                container.appendChild(div);
+            }
+        }
+
+        function renderReports() {
+            var dates = Object.keys(dailyEntries).sort().reverse();
+            var weeklyCal = 0,
+                weeklyCount = 0,
+                monthlyCal = 0,
+                monthlyCount = 0,
+                monthlyProt = 0;
+            for (var i = 0; i < dates.length; i++) {
+                var total = getDailyTotal(dailyEntries[dates[i]]);
+                if (total.calories > 0) {
+                    if (i < 7) {
+                        weeklyCal = weeklyCal + total.calories;
+                        weeklyCount++;
+                    }
+                    if (i < 30) {
+                        monthlyCal = monthlyCal + total.calories;
+                        monthlyProt = monthlyProt + total.protein;
+                        monthlyCount++;
+                    }
+                }
+            }
+            var weeklyAvg = weeklyCount > 0 ? Math.round(weeklyCal / weeklyCount) : 0;
+            var monthlyAvg = monthlyCount > 0 ? Math.round(monthlyCal / monthlyCount) : 0;
+            var monthlyAvgProt = monthlyCount > 0 ? (monthlyProt / monthlyCount).toFixed(1) : 0;
+            document.getElementById("weeklyReport").innerHTML = "<div class='stat-grid'><div class='stat-item'><div class='small-text'>Gün</div><div>" + weeklyCount + "</div></div><div class='stat-item'><div class='small-text'>Ort. Kalori</div><div>" + weeklyAvg + " kcal</div></div><div class='stat-item'><div class='small-text'>Toplam</div><div>" + weeklyCal + " kcal</div></div></div>";
+            document.getElementById("monthlyReport").innerHTML = "<div class='stat-grid'><div class='stat-item'><div class='small-text'>Gün</div><div>" + monthlyCount + "</div></div><div class='stat-item'><div class='small-text'>Ort. Kalori</div><div>" + monthlyAvg + " kcal</div></div><div class='stat-item'><div class='small-text'>Ort. Protein</div><div>" + monthlyAvgProt + " g</div></div></div>";
+        }
+
+        function renderGoalInfo() {
+            var container = document.getElementById("goalInfo");
+            var remainingDiv = document.getElementById("remainingInfo");
+            if (userProfile.weight && userProfile.targetWeight) {
+                var current = userProfile.weight;
+                var target = userProfile.targetWeight;
+                var diff = current - target;
+                var percent = 0;
+                if (diff > 0) {
+                    percent = (diff / current) * 100;
+                    if (percent > 100) percent = 100;
+                }
+                container.innerHTML = "<div class='stat-item'><div class='small-text'>Mevcut</div><div>" + current + " kg</div></div><div class='stat-item'><div class='small-text'>Hedef</div><div>" + target + " kg</div></div><div class='stat-item'><div class='small-text'>Fark</div><div>" + Math.abs(diff).toFixed(1) + " kg</div></div>";
+                document.getElementById("weightProgressFill").style.width = percent + "%";
+                remainingDiv.innerHTML = "<div class='stat-item'><div class='small-text'>Kalan</div><div>" + Math.abs(diff).toFixed(1) + " kg</div></div>";
+            } else {
+                container.innerHTML = "<div class='small-text'>Hedef kilonuzu girin</div>";
+                remainingDiv.innerHTML = "<div class='small-text'>Hedef belirleyin</div>";
+            }
+        }
+
+        function renderMoodHistory() {
+            var container = document.getElementById("moodHistory");
+            var dates = Object.keys(moodEntries).sort().reverse();
+            if (dates.length === 0) {
+                container.innerHTML = "<div class='small-text'>Henüz ruh hali kaydı yok.</div>";
+                return;
+            }
+            var html = "<div class='card-title'>📊 Son 7 Gün</div>";
+            for (var i = 0; i < dates.length && i < 7; i++) {
+                var entry = moodEntries[dates[i]];
+                html = html + "<div class='flex-between' style='padding: 0.5rem; border-bottom: 1px solid var(--border);'><span>" + dates[i] + "</span><span>" + (entry.mood || "😐") + "</span></div>";
+            }
+            container.innerHTML = html;
+        }
+
+        var calChart = null,
+            proChart = null,
+            carbsChart = null,
+            fatChart = null,
+            trendChart = null;
+
+        function refreshCharts() {
+            var dates = Object.keys(dailyEntries).sort();
+            var calData = [],
+                proData = [],
+                carbsData = [],
+                fatData = [],
+                labels = [];
+            for (var i = 0; i < dates.length; i++) {
+                var total = getDailyTotal(dailyEntries[dates[i]]);
+                calData.push(total.calories);
+                proData.push(total.protein);
+                carbsData.push(total.carbs || 0);
+                fatData.push(total.fat || 0);
+                labels.push(dates[i].slice(5));
+            }
+            if (calChart) calChart.destroy();
+            if (proChart) proChart.destroy();
+            if (carbsChart) carbsChart.destroy();
+            if (fatChart) fatChart.destroy();
+            if (trendChart) trendChart.destroy();
+
+            var calCtx = document.getElementById("calChart").getContext("2d");
+            var proCtx = document.getElementById("proteinChart").getContext("2d");
+            var carbsCtx = document.getElementById("carbsChart").getContext("2d");
+            var fatCtx = document.getElementById("fatChart").getContext("2d");
+            var trendCtx = document.getElementById("trendChart").getContext("2d");
+
+            calChart = new Chart(calCtx, {
+                type: "line",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Kalori",
+                        data: calData,
+                        borderColor: "#3b82f6"
+                    }]
+                }
+            });
+            proChart = new Chart(proCtx, {
+                type: "line",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Protein",
+                        data: proData,
+                        borderColor: "#10b981"
+                    }]
+                }
+            });
+
+            carbsChart = new Chart(carbsCtx, {
+                type: "line",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Karbonhidrat",
+                        data: carbsData,
+                        borderColor: "#f97316"
+                    }]
+                }
+            });
+
+            fatChart = new Chart(fatCtx, {
+                type: "line",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Yağ",
+                        data: fatData,
+                        borderColor: "#a855f7"
+                    }]
+                }
+            });
+
+            var trendData = [];
+            for (var i = 0; i < calData.length; i++) {
+                if (i < 2) trendData.push(null);
+                else trendData.push((calData[i - 2] + calData[i - 1] + calData[i]) / 3);
+            }
+            trendChart = new Chart(trendCtx, {
+                type: "line",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Günlük",
+                        data: calData,
+                        borderColor: "#3b82f6"
+                    }, {
+                        label: "Trend",
+                        data: trendData,
+                        borderColor: "#f59e0b",
+                        borderDash: [5, 5]
+                    }]
+                }
+            });
+        }
+
+        function saveCurrentFromInputs() {
+            var inputs = {
+                morning: {
+                    cal: Number(document.getElementById("morningCal").value) || 0,
+                    protein: Number(document.getElementById("morningProtein").value) || 0,
+                    carbs: Number(document.getElementById("morningCarbs").value) || 0,
+                    fat: Number(document.getElementById("morningFat").value) || 0
+                },
+                noon: {
+                    cal: Number(document.getElementById("noonCal").value) || 0,
+                    protein: Number(document.getElementById("noonProtein").value) || 0,
+                    carbs: Number(document.getElementById("noonCarbs").value) || 0,
+                    fat: Number(document.getElementById("noonFat").value) || 0
+                },
+                evening: {
+                    cal: Number(document.getElementById("eveningCal").value) || 0,
+                    protein: Number(document.getElementById("eveningProtein").value) || 0,
+                    carbs: Number(document.getElementById("eveningCarbs").value) || 0,
+                    fat: Number(document.getElementById("eveningFat").value) || 0
+                },
+                snack: {
+                    cal: Number(document.getElementById("snackCal").value) || 0,
+                    protein: Number(document.getElementById("snackProtein").value) || 0,
+                    carbs: Number(document.getElementById("snackCarbs").value) || 0,
+                    fat: Number(document.getElementById("snackFat").value) || 0
+                },
+                activity: Number(document.getElementById("activitySelect").value) || 1.375,
+                exercise: Number(document.getElementById("exerciseCal").value) || 0
+            };
+
+            dailyEntries[currentDate] = inputs;
+            saveAllData();
+            updateUI();
+
+            var btn = document.getElementById("saveDailyBtn");
+            var oldText = btn.innerText;
+            btn.innerText = "✓ Kaydedildi!";
+            setTimeout(function() {
+                btn.innerText = oldText;
+            }, 1500);
+
+            showNotification("✅ Günlük veriler kaydedildi!");
+        }
+
+        function clearMeal(meal) {
+            if (meal === "morning") {
+                document.getElementById("morningCal").value = 0;
+                document.getElementById("morningProtein").value = 0;
+                document.getElementById("morningCarbs").value = 0;
+                document.getElementById("morningFat").value = 0;
+            }
+            if (meal === "noon") {
+                document.getElementById("noonCal").value = 0;
+                document.getElementById("noonProtein").value = 0;
+                document.getElementById("noonCarbs").value = 0;
+                document.getElementById("noonFat").value = 0;
+            }
+            if (meal === "evening") {
+                document.getElementById("eveningCal").value = 0;
+                document.getElementById("eveningProtein").value = 0;
+                document.getElementById("eveningCarbs").value = 0;
+                document.getElementById("eveningFat").value = 0;
+            }
+            if (meal === "snack") {
+                document.getElementById("snackCal").value = 0;
+                document.getElementById("snackProtein").value = 0;
+                document.getElementById("snackCarbs").value = 0;
+                document.getElementById("snackFat").value = 0;
+            }
+            saveCurrentFromInputs();
+        }
+
+        function exportToCSV() {
+            var data = "Tarih,Kalori,Protein,İhtiyaç,Denge\n";
+            var dates = Object.keys(dailyEntries).sort();
+            for (var i = 0; i < dates.length; i++) {
+                var date = dates[i];
+                var total = getDailyTotal(dailyEntries[date]);
+                var need = getDailyNeeds(date);
+                data = data + date + "," + total.calories + "," + total.protein.toFixed(1) + "," + need + "," + (total.calories - need) + "\n";
+            }
+            var blob = new Blob([data], {
+                type: "text/csv"
+            });
+            var link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "nutritrack_verilerim.csv";
+            link.click();
+            showNotification("✅ Veriler Excel'e aktarıldı!");
+        }
+
+        function saveProfileFromForm() {
+            var w = Number(document.getElementById("weight").value);
+            var h = Number(document.getElementById("height").value);
+            var a = Number(document.getElementById("age").value);
+            var g = document.getElementById("gender").value;
+            var tp = Number(document.getElementById("targetProteinInput").value);
+            var tc = Number(document.getElementById("targetCarbsInput").value);
+            var tf = Number(document.getElementById("targetFatInput").value);
+
+            if (!isNaN(w)) userProfile.weight = w;
+            if (!isNaN(h)) userProfile.height = h;
+            if (!isNaN(a)) userProfile.age = a;
+            userProfile.gender = g;
+            userProfile.targetProtein = tp > 0 ? tp : null;
+            userProfile.targetCarbs = tc > 0 ? tc : null;
+            userProfile.targetFat = tf > 0 ? tf : null;
+            saveAllData();
+
+            var bmr = calculateBMR();
+            if (bmr) {
+                document.getElementById("bmrVal").innerHTML = bmr + " kcal";
+                document.getElementById("needVal").innerHTML = Math.round(bmr * 1.375) + " kcal";
+                document.getElementById("proteinTarget").innerHTML = Math.round((userProfile.weight || 0) * 1.8) + " g";
+            }
+            updateUI();
+            showNotification("✅ Profil kaydedildi!");
+        }
+
+        function saveGoal() {
+            var tw = Number(document.getElementById("targetWeight").value);
+            var td = document.getElementById("targetDate").value;
+            if (!isNaN(tw)) userProfile.targetWeight = tw;
+            if (td) userProfile.targetDate = td;
+            saveAllData();
+            renderGoalInfo();
+            showNotification("🎯 Hedef kaydedildi!");
+        }
+
+        function saveMood(mood, moodType) {
+            moodEntries[currentDate] = {
+                mood: mood,
+                type: moodType
+            };
+            saveAllData();
+            renderMoodHistory();
+
+            var motivasyonSozleri = {
+                sad: "Bugün kötü hissetmek normal. Yarın yeni bir gün. Her gün aynı değildir. Kendine iyi bak! 💙",
+                neutral: "Sakin bir gün. Dinlenmek ve kendine vakit ayırmak da önemlidir. 🧘",
+                good: "İyi hissediyorsun, bu harika! Bu enerjini beslenmene de yansıt. 💚",
+                happy: "Çok iyisin! Mutluluk bulaşıcıdır, bugün birini mutlu et. 🌟",
+                excellent: "Müthişsin! Bu coşkuyla hedeflerine çok daha hızlı ulaşacaksın. 🔥"
+            };
+
+            var soz = motivasyonSozleri[moodType] || "Bugün güzel bir gün! Hedeflerine odaklan. 💪";
+
+            var card = document.getElementById("motivationCard");
+            card.innerHTML = "<div style='font-size:1.5rem; text-align:center;'>" + mood + "</div><div style='font-style:italic; text-align:center;'>" + soz + "</div>";
+            card.style.display = "block";
+            setTimeout(function() {
+                card.style.display = "none";
+            }, 5000);
+
+            showNotification("😊 Ruh hali kaydedildi!");
+        }
+
+        function switchTab(tab) {
+            var tabs = ["profile", "daily", "goals", "reports", "mood", "history", "stats", "ai"];
+            for (var i = 0; i < tabs.length; i++) {
+                var el = document.getElementById(tabs[i] + "Tab");
+                if (el) el.classList.add("hidden");
+            }
+            var active = document.getElementById(tab + "Tab");
+            if (active) active.classList.remove("hidden");
+
+            var btns = document.querySelectorAll(".tab-btn");
+            for (var i = 0; i < btns.length; i++) {
+                btns[i].classList.remove("active");
+            }
+            var activeBtn = document.querySelector(".tab-btn[data-tab=\"" + tab + "\"]");
+            if (activeBtn) activeBtn.classList.add("active");
+
+            if (tab === "stats") refreshCharts();
+            if (tab === "history") renderHistory();
+            if (tab === "reports") renderReports();
+            if (tab === "goals") renderGoalInfo();
+            if (tab === "daily") updateUI();
+        }
+
+        function initTheme() {
+            var dark = localStorage.getItem("dark") === "true";
+            if (dark) document.body.classList.add("dark");
+            document.getElementById("themeToggle").innerText = dark ? "☀️ Açık Mod" : "🌙 Karanlık Mod";
+            Chart.defaults.color = dark ? "#94a3b8" : "#475569";
+            document.getElementById("themeToggle").onclick = function() {
+                document.body.classList.toggle("dark");
+                var isDark = document.body.classList.contains("dark");
+                localStorage.setItem("dark", isDark);
+                this.innerText = isDark ? "☀️ Açık Mod" : "🌙 Karanlık Mod";
+                Chart.defaults.color = isDark ? "#94a3b8" : "#475569";
+                if (!document.getElementById("statsTab").classList.contains("hidden")) refreshCharts();
+            };
+        }
+
+        function populateProfileForm() {
+            document.getElementById("weight").value = userProfile.weight !== null ? userProfile.weight : "";
+            document.getElementById("height").value = userProfile.height !== null ? userProfile.height : "";
+            document.getElementById("age").value = userProfile.age !== null ? userProfile.age : "";
+            document.getElementById("gender").value = userProfile.gender;
+            document.getElementById("targetWeight").value = userProfile.targetWeight !== null ? userProfile.targetWeight : "";
+            document.getElementById("targetDate").value = userProfile.targetDate !== null ? userProfile.targetDate : "";
+            document.getElementById("targetProteinInput").value = userProfile.targetProtein !== null ? userProfile.targetProtein : "";
+            document.getElementById("targetCarbsInput").value = userProfile.targetCarbs !== null ? userProfile.targetCarbs : "";
+            document.getElementById("targetFatInput").value = userProfile.targetFat !== null ? userProfile.targetFat : "";
+        }
+
+        // ==================== EDAMAM API ENTEGRASYONU ====================
+        // Şifrelenmiş (Base64) API anahtarlarını çözen fonksiyon
+        function decodeSecret(encodedStr) {
+            try {
+                return atob(encodedStr);
+            } catch (e) {
+                return "";
+            }
+        }
+
+        // GitHub'da doğrudan görünmemesi için Base64 ile şifrelenmiş API bilgileri
+        // Şifrelenmiş Gemini API anahtarın:
+        var geminiApiKey = decodeSecret("QUl6YVN5QVVXckRvUkdtY094aFZ6YlRnbkV1SVBlZGRCOEhQaG84");
+
+        document.getElementById("aiImageInput").onchange = function(event) {
+            var file = event.target.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var result = e.target.result;
+                    document.getElementById("aiImagePreview").src = result;
+                    document.getElementById("aiImagePreview").style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            } else {
+                document.getElementById("aiImagePreview").style.display = "none";
+            }
+        };
+
+        document.getElementById("askAIBtn").onclick = async function() {
+            if (!geminiApiKey) {
+                showNotification("❌ Lütfen önce Gemini API anahtarınızı girin!");
+                return;
+            }
+
+            var promptText = document.getElementById("aiPromptInput").value.trim();
+            var fileInput = document.getElementById("aiImageInput");
+            var file = fileInput.files[0];
+
+            if (!promptText && !file) {
+                showNotification("❌ Lütfen yemeği yazın veya görsel yükleyin.");
+                return;
+            }
+
+            var resultDiv = document.getElementById("aiResult");
+            resultDiv.style.display = "block";
+            resultDiv.innerHTML = "⏳ Gemini analiz ediyor, lütfen bekleyin...";
+            this.disabled = true;
+            this.innerText = "Analiz Ediliyor...";
+
+            try {
+                var parts = [];
+                var systemInstruction = "Sen bir diyetisyensin. Kullanıcının verdiği metni veya fotoğrafı analiz edip sadece şu formatta geçerli bir JSON döndür. Asla ekstra metin veya markdown ekleme:\n" +
+                    "{\"calories\": 0, \"protein\": 0.0, \"fat\": 0.0, \"carbs\": 0.0, \"food_name\": \"Tahmini Yemek Adı\"}";
+
+                var userMessage = promptText || "Bu görseldeki yemeğin besin değerleri nelerdir?";
+                parts.push({
+                    text: systemInstruction + "\n\nKullanıcı: " + userMessage
+                });
+
+                if (file) {
+                    var base64Data = await new Promise((resolve) => {
+                        var reader = new FileReader();
+                        reader.onload = () => resolve(reader.result.split(',')[1]);
+                        reader.readAsDataURL(file);
+                    });
+                    parts.push({
+                        inline_data: {
+                            mime_type: file.type,
+                            data: base64Data
+                        }
+                    });
+                }
+
+                var requestBody = {
+                    contents: [{
+                        parts: parts
+                    }],
+                    generationConfig: {
+                        response_mime_type: "application/json"
+                    }
+                };
+
+                var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + geminiApiKey;
+
+                var response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) throw new Error("API isteği başarısız oldu (Hata: " + response.status + ").");
+
+                var data = await response.json();
+                var responseText = data.candidates[0].content.parts[0].text;
+
+                var aiData = JSON.parse(responseText);
+                var aiCal = aiData.calories || 0;
+                var aiProt = aiData.protein || 0;
+
+                var html = "<strong>🤖 Gemini Sonucu:</strong><br><br>";
+                html += "🍽️ <b>Bulunan:</b> " + (aiData.food_name || "Bilinmiyor") + "<br>";
+                html += "🔥 <b>Kalori:</b> " + aiCal + " kcal<br>";
+                html += "🥩 <b>Protein:</b> " + aiProt + " g<br>";
+                html += "🥑 <b>Yağ:</b> " + (aiData.fat || 0) + " g<br>";
+                html += "🍞 <b>Karbonhidrat:</b> " + (aiData.carbs || 0) + " g<br><br>";
+
+                if (aiCal > 0 || aiProt > 0) {
+                    var safeName = (aiData.food_name || "Bilinmiyor").replace(/"/g, "&quot;").replace(/'/g, "\\'");
+                    html += "<div style='margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;'>";
+                    html += "<div class='small-text' style='font-weight: bold;'>Hangi öğüne eklensin?</div>";
+                    html += "<div style='display: flex; gap: 0.5rem; flex-wrap: wrap;'>";
+                    html += "<button onclick='addAiToMeal(\"morning\", " + Math.round(aiCal) + ", " + aiProt + ", " + (aiData.carbs || 0) + ", " + (aiData.fat || 0) + ")' style='flex: 1; background: var(--orange); font-size: 0.8rem; padding: 0.5rem;'>☀️ Sabah</button>";
+                    html += "<button onclick='addAiToMeal(\"noon\", " + Math.round(aiCal) + ", " + aiProt + ", " + (aiData.carbs || 0) + ", " + (aiData.fat || 0) + ")' style='flex: 1; background: var(--success); font-size: 0.8rem; padding: 0.5rem;'>🌞 Öğle</button>";
+                    html += "<button onclick='addAiToMeal(\"evening\", " + Math.round(aiCal) + ", " + aiProt + ", " + (aiData.carbs || 0) + ", " + (aiData.fat || 0) + ")' style='flex: 1; background: var(--primary); font-size: 0.8rem; padding: 0.5rem;'>🌙 Akşam</button>";
+                    html += "<button onclick='addAiToMeal(\"snack\", " + Math.round(aiCal) + ", " + aiProt + ", " + (aiData.carbs || 0) + ", " + (aiData.fat || 0) + ")' style='flex: 1; background: var(--purple); font-size: 0.8rem; padding: 0.5rem;'>🍎 Ara Öğün</button>";
+                    html += "</div></div>";
+                    html += "<button onclick='addFavorite(\"" + safeName + "\", " + Math.round(aiCal) + ", " + aiProt + ", " + (aiData.carbs || 0) + ", " + (aiData.fat || 0) + ")' class='secondary' style='margin-top: 0.5rem; width: 100%;'>⭐ Favorilere Ekle</button>";
+                }
+
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = "❌ Hata oluştu: " + error.message;
+            } finally {
+                this.disabled = false;
+                this.innerText = "Analiz Et";
+            }
+        };
+
+        document.getElementById("saveProfileBtn").onclick = saveProfileFromForm;
+        document.getElementById("saveDailyBtn").onclick = saveCurrentFromInputs;
+        document.getElementById("saveGoalBtn").onclick = saveGoal;
+        document.getElementById("exportBtn").onclick = exportToCSV;
+        document.getElementById("prevDayBtn").onclick = function() {
+            var d = new Date(currentDate);
+            d.setDate(d.getDate() - 1);
+            currentDate = d.toISOString().slice(0, 10);
+            updateUI();
+        };
+        document.getElementById("nextDayBtn").onclick = function() {
+            var d = new Date(currentDate);
+            d.setDate(d.getDate() + 1);
+            currentDate = d.toISOString().slice(0, 10);
+            updateUI();
+        };
+
+        var clearBtns = document.querySelectorAll(".clear-meal");
+        for (var i = 0; i < clearBtns.length; i++) {
+            clearBtns[i].onclick = function() {
+                var meal = this.getAttribute("data-meal");
+                clearMeal(meal);
+            };
+        }
+
+        var moodBtns = document.querySelectorAll(".mood-btn");
+        for (var i = 0; i < moodBtns.length; i++) {
+            moodBtns[i].onclick = function() {
+                var mood = this.getAttribute("data-mood");
+                var moodType = this.getAttribute("data-mood-type");
+                saveMood(mood, moodType);
+            };
+        }
+
+        var tabBtns = document.querySelectorAll(".tab-btn");
+        for (var i = 0; i < tabBtns.length; i++) {
+            tabBtns[i].onclick = function() {
+                var tab = this.getAttribute("data-tab");
+                switchTab(tab);
+            };
+        }
+
+        function addAiToMeal(mealType, cal, prot, carbs, fat) {
+            carbs = carbs || 0;
+            fat = fat || 0;
+            var calId = mealType + "Cal";
+            var protId = mealType + "Protein";
+            var carbsId = mealType + "Carbs";
+            var fatId = mealType + "Fat";
+
+            var currentCal = Number(document.getElementById(calId).value) || 0;
+            var currentProt = Number(document.getElementById(protId).value) || 0;
+            var currentCarbs = Number(document.getElementById(carbsId).value) || 0;
+            var currentFat = Number(document.getElementById(fatId).value) || 0;
+
+            document.getElementById(calId).value = Math.round(currentCal + cal);
+            document.getElementById(protId).value = parseFloat((currentProt + prot).toFixed(1));
+            document.getElementById(carbsId).value = parseFloat((currentCarbs + carbs).toFixed(1));
+            document.getElementById(fatId).value = parseFloat((currentFat + fat).toFixed(1));
+
+            saveCurrentFromInputs();
+            switchTab("daily");
+            showNotification("✅ Öğüne eklendi!");
+        }
+
+        function addWater(amount) {
+            var entry = dailyEntries[currentDate];
+            if (!entry) {
+                entry = getEmptyMeals();
+                dailyEntries[currentDate] = entry;
+            }
+            entry.water = (entry.water || 0) + amount;
+            if (entry.water < 0) entry.water = 0;
+            saveAllData();
+            updateUI();
+        }
+
+        function updateFastingTimer() {
+            if (!fastingStart) {
+                document.getElementById("fastingDisplay").innerText = "--:--:--";
+                document.getElementById("toggleFastingBtn").innerText = "Başlat (16 Saat)";
+                document.getElementById("toggleFastingBtn").className = "small secondary";
+                return;
+            }
+            var start = parseInt(fastingStart);
+            var now = Date.now();
+            var diff = now - start;
+            var elapsedSec = Math.floor(diff / 1000);
+            var targetSec = 16 * 3600;
+            var remainingSec = targetSec - elapsedSec;
+
+            if (remainingSec <= 0) {
+                document.getElementById("fastingDisplay").innerText = "🎉 Tamamlandı!";
+                document.getElementById("toggleFastingBtn").innerText = "Orucu Bitir";
+                document.getElementById("toggleFastingBtn").className = "small";
+            } else {
+                var h = Math.floor(remainingSec / 3600);
+                var m = Math.floor((remainingSec % 3600) / 60);
+                var s = remainingSec % 60;
+                document.getElementById("fastingDisplay").innerText =
+                    (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+                document.getElementById("toggleFastingBtn").innerText = "Orucu İptal Et";
+                document.getElementById("toggleFastingBtn").className = "small";
+            }
+        }
+
+        document.getElementById("toggleFastingBtn").onclick = function() {
+            if (fastingStart) {
+                fastingStart = null;
+                localStorage.removeItem("nutritrack_fasting_start");
+                showNotification("Oruç bitirildi/iptal edildi.");
+            } else {
+                fastingStart = Date.now().toString();
+                localStorage.setItem("nutritrack_fasting_start", fastingStart);
+                showNotification("Aralıklı oruç başladı!");
+            }
+            updateFastingTimer();
+        }
+
+        setInterval(updateFastingTimer, 1000);
+
+        function addFavorite(name, cal, prot, carbs, fat) {
+            favoriteMeals.push({
+                name: name,
+                cal: cal,
+                prot: prot,
+                carbs: carbs,
+                fat: fat
+            });
+            localStorage.setItem("nutritrack_favorites", JSON.stringify(favoriteMeals));
+            showNotification("⭐ Favorilere eklendi!");
+            renderFavorites();
+        }
+
+        function removeFavorite(index) {
+            favoriteMeals.splice(index, 1);
+            localStorage.setItem("nutritrack_favorites", JSON.stringify(favoriteMeals));
+            renderFavorites();
+        }
+
+        function toggleFavAdd(index) {
+            var box = document.getElementById("favAddBox_" + index);
+            box.style.display = (box.style.display === "none") ? "flex" : "none";
+        }
+
+        function renderFavorites() {
+            var container = document.getElementById("favoritesList");
+            if (!container) return;
+            container.innerHTML = "";
+            if (favoriteMeals.length === 0) {
+                container.innerHTML = "<div class='small-text'>Henüz favori yemeğiniz yok. Yapay zeka ile bulduğunuz yemekleri buraya ekleyebilirsiniz.</div>";
+                return;
+            }
+            for (var i = 0; i < favoriteMeals.length; i++) {
+                var fav = favoriteMeals[i];
+                var div = document.createElement("div");
+                div.className = "daily-item";
+                div.innerHTML =
+                    "<div class='flex-between'>" +
+                    "<div>" +
+                    "<div style='font-weight:bold;'>" + fav.name + "</div>" +
+                    "<div class='small-text'>🔥 " + fav.cal + " kcal | 🥩 " + fav.prot + "g | 🍞 " + fav.carbs + "g | 🥑 " + fav.fat + "g</div>" +
+                    "</div>" +
+                    "<div>" +
+                    "<button class='small' onclick='toggleFavAdd(" + i + ")'>Ekle</button> " +
+                    "<button class='small secondary' onclick='removeFavorite(" + i + ")'>🗑️</button>" +
+                    "</div>" +
+                    "</div>" +
+                    "<div id='favAddBox_" + i + "' style='display:none; margin-top: 0.5rem; gap: 0.2rem; flex-wrap: wrap;'>" +
+                    "<button onclick='addAiToMeal(\"morning\", " + fav.cal + ", " + fav.prot + ", " + fav.carbs + ", " + fav.fat + ")' style='flex: 1; background: var(--orange); font-size: 0.7rem; padding: 0.4rem;'>Sabah</button>" +
+                    "<button onclick='addAiToMeal(\"noon\", " + fav.cal + ", " + fav.prot + ", " + fav.carbs + ", " + fav.fat + ")' style='flex: 1; background: var(--success); font-size: 0.7rem; padding: 0.4rem;'>Öğle</button>" +
+                    "<button onclick='addAiToMeal(\"evening\", " + fav.cal + ", " + fav.prot + ", " + fav.carbs + ", " + fav.fat + ")' style='flex: 1; background: var(--primary); font-size: 0.7rem; padding: 0.4rem;'>Akşam</button>" +
+                    "<button onclick='addAiToMeal(\"snack\", " + fav.cal + ", " + fav.prot + ", " + fav.carbs + ", " + fav.fat + ")' style='flex: 1; background: var(--purple); font-size: 0.7rem; padding: 0.4rem;'>Ara</button>" +
+                    "</div>";
+                container.appendChild(div);
+            }
+        }
+
+        loadAllData();
+        populateProfileForm();
+        initTheme();
+        updateUI();
+        renderFavorites();
+        updateFastingTimer();
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then(function() {
+                console.log("Service Worker başarıyla kaydedildi.");
+            });
+        }
+
+        // PWA Kurulum Butonu (Install Prompt)
+        var deferredPrompt;
+        var installBtn = document.getElementById("installAppBtn");
+
+        window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (installBtn) installBtn.style.display = "block"; // Kurulabilir durumdaysa butonu göster
+        });
+
+        if (installBtn) {
+            installBtn.onclick = async function() {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    var result = await deferredPrompt.userChoice;
+                    deferredPrompt = null;
+                    installBtn.style.display = "none";
+                }
+            };
+        }
+        window.addEventListener('appinstalled', function() {
+            if (installBtn) installBtn.style.display = "none"; // Kurulum bitince butonu gizle
+        });
+
+        console.log("Uygulama başlatıldı. Veriler localStorage'a kaydediliyor.");
+    </script>
+</body>
+
+</html>
