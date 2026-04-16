@@ -1,7 +1,9 @@
 var CACHE_NAME = 'nutritrack-v1';
+var CACHE_NAME = 'saglicakla-v1';
 var urlsToCache = [
     './index.html',
-    './manifest.json'
+    './manifest.json',
+    'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'
 ];
 
 self.addEventListener('install', function(event) {
