@@ -1,11 +1,13 @@
 {
-    "name": "Sağlıcakla",
-    "short_name": "Sağlıcakla",
-    "start_url": "./index.html",
+    "name": "SağlıcakLA - Beslenme Takibi",
+    "short_name": "SağlıcakLA",
+    "description": "Günlük kalori, makro ve spor takibi uygulaması.",
+    "lang": "tr-TR",
+    "start_url": ".",
+    "scope": ".",
     "display": "standalone",
     "background_color": "#0f172a",
     "theme_color": "#3b82f6",
-    "description": "Kişisel kalori, makro ve spor takip asistanınız.",
     "icons": [{
             "src": "icon-192x192.png",
             "sizes": "192x192",
